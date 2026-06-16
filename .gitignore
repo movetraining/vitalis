@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# El motor secreto  (Propiedad intercultural - oculto para el público)
+src/features/music/data/
