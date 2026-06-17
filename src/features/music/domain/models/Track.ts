@@ -6,7 +6,7 @@ export interface Track {
     duration: number; // Duracion exacta en segundos
     artworkUrl: string; // URL de la caratula de fondo (diseño)
     streamUrl?: string; // Enlace directo del flujo de audio 
-    isLocal: boolean; // true si es un Mp3 del telefono false si es una de la nube
+    isLocal?: boolean; // true si es un Mp3 del telefono false si es una de la nube
     lyrics?: string; // Letra de la cancion
-    createdAt: number; // para ordenar el hitorial de reproduccion
+    createdAt?: number; // para ordenar el hitorial de reproduccion
     }

@@ -41,4 +41,6 @@ yarn-error.*
 /android
 
 # El motor secreto  (Propiedad intercultural - oculto para el público)
-src/features/music/data/
+src/features/music/infrastructure/
+src/features/music/context/
+src/features/music/hooks/

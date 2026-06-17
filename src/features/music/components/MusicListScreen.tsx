@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TextInput } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, Text, View, FlatList, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TrackItem } from './TrackItem';
 import { FloatingPlayer } from './FloatingPlayer';
@@ -7,53 +7,74 @@ import { FullPlayerModal } from './FullPlayerModal';
 import { useMusic } from '../context/MusicPlayerContext';
 
 export const MusicListScreen: React.FC = () => {
-  const { currentTrack, isPlaying, playbackPosition, playTrack, togglePlay, tracks } = useMusic();
-  
-  // Estado para capturar lo que el usuario escribe
-  const [searchQuery, setSearchQuery] = useState('');
+  const { 
+    currentTrack, isPlaying, playbackPosition, 
+    playTrack, togglePlay, tracks, searchTracks, isSearching 
+  } = useMusic();
 
-  // LÓGICA DE FILTRADO: Filtra por título o artista sin importar mayúsculas o minúsculas
-  const filteredTracks = tracks.filter(track => 
-    track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    track.artist.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+
+  // Espera 600ms después de que el usuario deje de escribir para buscar
+  const handleSearchChange = useCallback((text: string) => {
+    setSearchQuery(text);
+
+    if (searchTimeout) clearTimeout(searchTimeout);
+
+    const timeout = setTimeout(() => {
+      searchTracks(text);
+    }, 600);
+
+    setSearchTimeout(timeout);
+  }, [searchTimeout, searchTracks]);
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Cabecera de la App */}
+      {/* Cabecera */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Tu Música</Text>
-        <Text style={styles.headerSubtitle}>Módulo de audio profesional</Text>
-        
-        {/* BARRA DE BÚSQUEDA (Nueva herramienta funcional) */}
+        <Text style={styles.headerSubtitle}>Busca cualquier canción</Text>
+
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="¿Qué deseas escuchar? (Escribe canción o artista)..."
+            placeholder="¿Qué deseas escuchar?..."
             placeholderTextColor="#71717A"
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={handleSearchChange}
             autoCorrect={false}
           />
         </View>
       </View>
 
-      {/* Lista de reproducción filtrada dinámicamente */}
+      {/* Indicador de carga */}
+      {isSearching && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color="#1DB954" />
+          <Text style={styles.loadingText}>Buscando...</Text>
+        </View>
+      )}
+
+      {/* Lista de resultados */}
       <FlatList
-        data={filteredTracks} 
+        data={tracks}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TrackItem track={item} onPress={(track) => playTrack(track)} />
         )}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No se encontraron canciones para "{searchQuery}"</Text>
-          </View>
+          !isSearching ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyIcon}>🎵</Text>
+              <Text style={styles.emptyText}>
+                {searchQuery ? `Sin resultados para "${searchQuery}"` : 'Escribe algo para buscar música'}
+              </Text>
+            </View>
+          ) : null
         }
       />
 
-      {/* Reproductor Flotante Inferior */}
       <FloatingPlayer
         currentTrack={currentTrack}
         isPlaying={isPlaying}
@@ -61,8 +82,7 @@ export const MusicListScreen: React.FC = () => {
         playbackPosition={playbackPosition}
       />
 
-      {/* Modal Inmersivo */}
-      <FullPlayerModal /> 
+      <FullPlayerModal />
     </SafeAreaView>
   );
 };
@@ -103,13 +123,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     width: '100%',
   },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    gap: 8,
+  },
+  loadingText: {
+    color: '#1DB954',
+    fontSize: 13,
+  },
   listContent: {
     paddingVertical: 10,
     paddingBottom: 90,
   },
   emptyContainer: {
-    paddingVertical: 40,
+    paddingVertical: 60,
     alignItems: 'center',
+    gap: 12,
+  },
+  emptyIcon: {
+    fontSize: 40,
   },
   emptyText: {
     color: '#71717A',

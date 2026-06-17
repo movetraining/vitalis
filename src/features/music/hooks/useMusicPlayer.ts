@@ -1,17 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { Audio } from 'expo-av';
 import { Track } from '../domain/models/Track';
+import { YouTubeMusicRepository } from '../infrastructure/repositories/YouTubeMusicRepository';
 
-// Definimos que el hook ahora puede recibir una función de aviso
 interface UseMusicPlayerProps {
   onTrackFinished?: () => void;
 }
+
+const repository = new YouTubeMusicRepository();
 
 export const useMusicPlayer = ({ onTrackFinished }: UseMusicPlayerProps = {}) => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackPosition, setPlaybackPosition] = useState<number>(0);
-  
+
   const soundRef = useRef<Audio.Sound | null>(null);
   const nextRequestId = useRef<number>(0);
 
@@ -28,11 +30,9 @@ export const useMusicPlayer = ({ onTrackFinished }: UseMusicPlayerProps = {}) =>
       setPlaybackPosition(Math.floor(status.positionMillis / 1000));
       setIsPlaying(status.isPlaying);
 
-      // ¡EL MOMENTO CLAVE!: Si la canción terminó de sonar
       if (status.didJustFinish) {
         setIsPlaying(false);
         setPlaybackPosition(0);
-        // Si nos pasaron la función de aviso, la ejecutamos aquí
         if (onTrackFinished) {
           onTrackFinished();
         }
@@ -60,13 +60,16 @@ export const useMusicPlayer = ({ onTrackFinished }: UseMusicPlayerProps = {}) =>
         playThroughEarpieceAndroid: false,
       });
 
-      // Mapeo dinámico temporal usando las URLs reales de prueba de audio
-      const audioSource = track.id === '1' 
-        ? 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
-        : 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3';
+      // Usa el streamUrl del track, o lo pide a la API si no lo tiene
+      let audioUrl = track.streamUrl;
+      if (!audioUrl) {
+        audioUrl = await repository.getStreamUrl(track.id);
+      }
+
+      if (!audioUrl) throw new Error('No se encontró URL de audio');
 
       const { sound } = await Audio.Sound.createAsync(
-        { uri: audioSource },
+        { uri: audioUrl },
         { shouldPlay: true },
         onPlaybackStatusUpdate
       );

@@ -110,9 +110,9 @@ export const FullPlayerModal: React.FC = () => {
 
                 <ScrollView contentContainerStyle={styles.queueVerticalScroll} showsVerticalScrollIndicator={false}>
                   {upcomingTracks.length > 0 ? (
-                    upcomingTracks.map((track) => (
+                    upcomingTracks.map((track, index) => (
                       <TouchableOpacity 
-                        key={track.id} 
+                        key={track.id ? `${track.id}-${index}` : index.toString()}
                         style={styles.verticalTrackRow}
                         onPress={() => {
                           playTrack(track);
