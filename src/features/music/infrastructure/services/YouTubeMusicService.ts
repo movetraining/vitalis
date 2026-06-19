@@ -1,11 +1,10 @@
 import axios from 'axios';
 import { Track } from '../../domain/models/Track';
+import ytdl from 'react-native-ytdl';
 
-// Aquí va la IP de tu computadora (no localhost, porque el teléfono no lo reconoce)
-const BACKEND_URL = 'http://192.168.100.52:3000';
+const BACKEND_URL = 'https://vitalis-backend-g7bz.onrender.com';
 
 export class YouTubeMusicService {
-
   async searchTracks(query: string): Promise<Track[]> {
     try {
       if (!query.trim()) return [];
@@ -21,13 +20,19 @@ export class YouTubeMusicService {
       return [];
     }
   }
-
-  async getAudioStreamUrl(videoId: string): Promise<string | null> {
+   async getAudioStreamUrl(videoId: string): Promise<string | null> {
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/music/stream/${videoId}`, {
-        timeout: 15000,
-      });
-      return response.data.streamUrl || null;
+      const url = `https://www.youtube.com/watch?v=${videoId}`;
+      const info = await ytdl.getInfo(url);
+      const formats = ytdl.filterFormats(info.formats, 'audioonly');
+
+      if (!formats.length) return null;
+
+      const best = formats.sort(
+        (a: any, b: any) => (b.audioBitrate || 0) - (a.audioBitrate || 0)
+      )[0];
+
+      return best.url;
     } catch (error) {
       console.error('Error obteniendo stream:', error);
       return null;

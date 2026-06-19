@@ -16,7 +16,7 @@ export const FloatingPlayer: React.FC<FloatingPlayerProps> = ({
   onTogglePlay,
   playbackPosition,
 }) => {
-  const { setFullPlayerVisible } = useMusic(); // Traemos el disparador
+  const { setFullPlayerVisible } = useMusic();
 
   if (!currentTrack) return null;
 
@@ -24,7 +24,6 @@ export const FloatingPlayer: React.FC<FloatingPlayerProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Al presionar toda el área de información se abrirá el modal */}
       <TouchableWithoutFeedback onPress={() => setFullPlayerVisible(true)}>
         <View style={styles.content}>
           <Image source={{ uri: currentTrack.artworkUrl || 'https://via.placeholder.com/150' }} style={styles.artwork} />
@@ -50,7 +49,7 @@ export const FloatingPlayer: React.FC<FloatingPlayerProps> = ({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 4,
     left: 0,
     right: 0,
     backgroundColor: '#1C1C1E',

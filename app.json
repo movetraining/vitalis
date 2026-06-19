@@ -21,7 +21,10 @@
       },
       "edgeToEdgeEnabled": true
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router",
+      "expo-audio"
+    ],
     "scheme": "vitalis"
   }
 }

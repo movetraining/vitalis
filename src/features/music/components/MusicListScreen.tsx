@@ -9,13 +9,12 @@ import { useMusic } from '../context/MusicPlayerContext';
 export const MusicListScreen: React.FC = () => {
   const { 
     currentTrack, isPlaying, playbackPosition, 
-    playTrack, togglePlay, tracks, searchTracks, isSearching 
+    playTrack, togglePlay, tracks, searchTracks, isSearching
   } = useMusic();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchTimeout, setSearchTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
 
-  // Espera 600ms después de que el usuario deje de escribir para buscar
   const handleSearchChange = useCallback((text: string) => {
     setSearchQuery(text);
 
@@ -30,7 +29,6 @@ export const MusicListScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Cabecera */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Tu Música</Text>
         <Text style={styles.headerSubtitle}>Busca cualquier canción</Text>
@@ -47,7 +45,6 @@ export const MusicListScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Indicador de carga */}
       {isSearching && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color="#1DB954" />
@@ -55,7 +52,6 @@ export const MusicListScreen: React.FC = () => {
         </View>
       )}
 
-      {/* Lista de resultados */}
       <FlatList
         data={tracks}
         keyExtractor={(item) => item.id}
@@ -136,7 +132,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 10,
-    paddingBottom: 90,
+    paddingBottom: 160,
   },
   emptyContainer: {
     paddingVertical: 60,

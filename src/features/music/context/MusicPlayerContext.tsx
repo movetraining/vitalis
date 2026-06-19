@@ -12,7 +12,7 @@ interface MusicPlayerContextType {
   isSearching: boolean;
   setFullPlayerVisible: (visible: boolean) => void;
   playTrack: (track: Track) => Promise<void>;
-  togglePlay: () => Promise<void>;
+  togglePlay: () => void;
   playNext: () => void;
   playPrevious: () => void;
   searchTracks: (query: string) => Promise<void>;
