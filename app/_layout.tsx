@@ -9,12 +9,13 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: '#111111',
-            borderTopColor: '#222222',
+            backgroundColor: 'rgba(17, 17, 17, 0.85)',
+            borderTopColor: 'rgba(255, 255, 255, 0.08)',
             borderTopWidth: 1,
             height: 68,
             paddingBottom: 10,
             paddingTop: 2,
+            position: 'absolute',
           },
           tabBarActiveTintColor: '#1DB954',
           tabBarInactiveTintColor: '#666666',
@@ -55,10 +56,7 @@ export default function RootLayout() {
         <Tabs.Screen
           name="(app)/settings"
           options={{
-            title: 'Ajustes',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="settings" size={size} color={color} />
-            ),
+            href: null,
           }}
         />
       </Tabs>

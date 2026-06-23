@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { Track } from '../domain/models/Track';
 import { useMusicPlayer } from '../hooks/useMusicPlayer';
-import { YouTubeMusicRepository } from '../infrastructure/repositories/YouTubeMusicRepository';
+import { LocalMusicRepository } from '../infrastructure/repositories/LocalMusicRepository';
 
 interface MusicPlayerContextType {
   tracks: Track[];
@@ -16,11 +16,12 @@ interface MusicPlayerContextType {
   playNext: () => void;
   playPrevious: () => void;
   searchTracks: (query: string) => Promise<void>;
+  loadTracks: () => Promise<void>;
 }
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined);
 
-const repository = new YouTubeMusicRepository();
+const repository = new LocalMusicRepository();
 
 export const MusicPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -40,23 +41,38 @@ export const MusicPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       playNextRef.current();
     }
   });
-
-  const searchTracks = async (query: string) => {
-    if (!query.trim()) {
-      setTracks([]);
-      return;
-    }
+  const allTracksRef = useRef<Track[]>([]);
+  const loadTracks = async () => {
     try {
       setIsSearching(true);
-      const results = await repository.searchTracks(query);
+      const results = await repository.getAllTracks();
+      allTracksRef.current = results;
       setTracks(results);
     } catch (error) {
-      console.error('Error buscando canciones:', error);
+      console.error('Error cargando canciones:', error);
       setTracks([]);
     } finally {
       setIsSearching(false);
     }
   };
+
+  const searchTracks = async (query: string) => {
+    if (!query.trim()){
+      setTracks(allTracksRef.current);
+      return;
+    }
+    const lowerQuery = query.toLocaleLowerCase();
+    const filteder = allTracksRef.current.filter(
+      (track) =>
+        track.title.toLowerCase().includes(lowerQuery) ||
+        track.artist.toLowerCase().includes(lowerQuery)
+    );
+    setTracks(filteder);
+  };
+
+  useEffect(() => {
+    loadTracks();
+  }, []);
 
   const playNext = () => {
     if (!currentTrack) return;
@@ -93,6 +109,7 @@ export const MusicPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         playNext,
         playPrevious,
         searchTracks,
+        loadTracks,
       }}
     >
       {children}

@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync} from 'expo-audio';
 import { Track } from '../domain/models/Track';
-import { YouTubeMusicRepository } from '../infrastructure/repositories/YouTubeMusicRepository';
 
 interface UseMusicPlayerProps {
   onTrackFinished?: () => void;
 }
-
-const repository = new YouTubeMusicRepository();
 
 export const useMusicPlayer = ({ onTrackFinished }: UseMusicPlayerProps = {}) => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
@@ -18,6 +15,14 @@ export const useMusicPlayer = ({ onTrackFinished }: UseMusicPlayerProps = {}) =>
   const playbackPosition = Math.floor(status.currentTime || 0);
 
   useEffect(() => {
+    // Configura el audio para segundo plano
+    setAudioModeAsync({
+      playsInSilentMode: true,
+      shouldPlayInBackground: true,
+    });
+  }, []);
+
+  useEffect(() => {
     if (status.didJustFinish) {
       if (onTrackFinished) onTrackFinished();
     }
@@ -26,11 +31,8 @@ export const useMusicPlayer = ({ onTrackFinished }: UseMusicPlayerProps = {}) =>
   const playTrack = async (track: Track) => {
     try {
       setCurrentTrack(track);
-
-      const audioUrl = await repository.getStreamUrl(track.id);
-      if (!audioUrl) throw new Error('No se encontró URL de audio');
-
-      player.replace({ uri: audioUrl });
+      if (!track.uri) throw new Error('No se encontró el archivo de audio');
+      player.replace({ uri: track.uri });
       player.play();
     } catch (error) {
       console.log('Error en el motor de reproducción:', error);

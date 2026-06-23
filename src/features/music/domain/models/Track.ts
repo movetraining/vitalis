@@ -3,8 +3,10 @@ export interface Track {
     title: string; //Titulo de la cancion
     artist: string; // Artista, grupo o canal de Yotube
     album?: string; // Album al que pertenece la cancion (opcional)
+    folderName?: string;
     duration: number; // Duracion exacta en segundos
     artworkUrl: string; // URL de la caratula de fondo (diseño)
+    uri?: string; // URL de la cancion (de Yotube Music o del archivo local)
     streamUrl?: string; // Enlace directo del flujo de audio 
     isLocal?: boolean; // true si es un Mp3 del telefono false si es una de la nube
     lyrics?: string; // Letra de la cancion

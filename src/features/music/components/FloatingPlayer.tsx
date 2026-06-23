@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Track } from '../domain/models/Track';
 import { useMusic } from '../context/MusicPlayerContext';
 
@@ -16,7 +17,7 @@ export const FloatingPlayer: React.FC<FloatingPlayerProps> = ({
   onTogglePlay,
   playbackPosition,
 }) => {
-  const { setFullPlayerVisible } = useMusic();
+  const { setFullPlayerVisible, playNext, playPrevious } = useMusic();
 
   if (!currentTrack) return null;
 
@@ -35,9 +36,19 @@ export const FloatingPlayer: React.FC<FloatingPlayerProps> = ({
         </View>
       </TouchableWithoutFeedback>
 
-      <TouchableOpacity style={styles.playButton} onPress={onTogglePlay}>
-        <Text style={styles.playIcon}>{isPlaying ? '⏸' : '▶'}</Text>
-      </TouchableOpacity>
+      <View style={styles.controls}>
+        <TouchableOpacity style={styles.controlButton} onPress={playPrevious}>
+          <Ionicons name="play-skip-back" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.playButton} onPress={onTogglePlay}>
+          <Ionicons name={isPlaying ? 'pause' : 'play'} size={22} color="#FFFFFF" />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.controlButton} onPress={playNext}>
+          <Ionicons name="play-skip-forward" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.progressBarBackground}>
         <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
@@ -49,7 +60,7 @@ export const FloatingPlayer: React.FC<FloatingPlayerProps> = ({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 4,
+    bottom: 68,
     left: 0,
     right: 0,
     backgroundColor: '#1C1C1E',
@@ -58,7 +69,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingRight: 8,
+    paddingRight: 4,
     elevation: 10,
   },
   content: {
@@ -89,15 +100,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
   },
-  playButton: {
-    width: 48,
+  controls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  controlButton: {
+    width: 36,
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  playIcon: {
-    color: '#FFFFFF',
-    fontSize: 20,
+  playButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#1c1d1c',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 2,
   },
   progressBarBackground: {
     position: 'absolute',

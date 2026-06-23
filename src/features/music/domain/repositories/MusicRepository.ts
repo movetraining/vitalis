@@ -1,6 +1,8 @@
 import { Track } from '../models/Track';
 
 export interface MusicRepository {
+  
+   getAllTracks(): Promise<Track[]>
   /**
    * Busca canciones en la plataforma (YouTube Music / Servidor)
    * @param query Término de búsqueda (Nombre de canción, artista)
